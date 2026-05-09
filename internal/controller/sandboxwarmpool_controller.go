@@ -6,6 +6,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -322,7 +323,7 @@ func (r *SandboxWarmPoolReconciler) updateStatus(ctx context.Context, pool *sand
 		readyReason = "MinIdleSatisfied"
 		readyMsg = "idle pods at or above minIdleCount"
 	}
-	metav1.SetStatusCondition(&pool.Status.Conditions, metav1.Condition{
+	meta.SetStatusCondition(&pool.Status.Conditions, metav1.Condition{
 		Type:    conditionPoolReady,
 		Status:  readyStatus,
 		Reason:  readyReason,
@@ -337,7 +338,7 @@ func (r *SandboxWarmPoolReconciler) updateStatus(ctx context.Context, pool *sand
 		degradedReason = "PodDegraded"
 		degradedMsg = "one or more pods failing to become ready"
 	}
-	metav1.SetStatusCondition(&pool.Status.Conditions, metav1.Condition{
+	meta.SetStatusCondition(&pool.Status.Conditions, metav1.Condition{
 		Type:    conditionPoolDegraded,
 		Status:  degradedStatus,
 		Reason:  degradedReason,
@@ -353,7 +354,7 @@ func (r *SandboxWarmPoolReconciler) updateStatus(ctx context.Context, pool *sand
 		capacityReason = "AtCapacity"
 		capacityMsg = "pool at or above maxPoolSize"
 	}
-	metav1.SetStatusCondition(&pool.Status.Conditions, metav1.Condition{
+	meta.SetStatusCondition(&pool.Status.Conditions, metav1.Condition{
 		Type:    conditionPoolAtCapacity,
 		Status:  capacityStatus,
 		Reason:  capacityReason,
