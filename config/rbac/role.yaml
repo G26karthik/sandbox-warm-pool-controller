@@ -1,0 +1,63 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sandbox-warm-pool-controller
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - sandbox.koordinator.sh
+  resources:
+  - sandboxwarmpools
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - sandbox.koordinator.sh
+  resources:
+  - sandboxwarmpools/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - sandbox.koordinator.sh
+  resources:
+  - sandboxwarmpools/status
+  verbs:
+  - get
+  - patch
+  - update
