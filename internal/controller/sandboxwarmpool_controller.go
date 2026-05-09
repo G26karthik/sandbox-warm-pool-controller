@@ -96,6 +96,7 @@ func (r *SandboxWarmPoolReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	if err := r.updateStatus(ctx, &pool, counts); err != nil {
 		return ctrl.Result{}, err
 	}
+	recordPoolCounts(&pool, counts)
 
 	logger.V(1).Info("reconciled sandbox warm pool", "idle", counts.idle, "assigned", counts.assigned, "pending", counts.pending, "recycling", counts.recycling, "terminating", counts.terminating)
 
@@ -187,6 +188,7 @@ func (r *SandboxWarmPoolReconciler) syncPodStates(ctx context.Context, pool *san
 					return nil, err
 				}
 				state = stateIdle
+				recordWarmupIfAvailable(pool, pod)
 			}
 		case stateRecycling:
 			if isPodReady(pod) {
@@ -252,6 +254,7 @@ func (r *SandboxWarmPoolReconciler) scaleUp(ctx context.Context, pool *sandboxv1
 		if err := r.Create(ctx, pod); err != nil {
 			return i > 0, err
 		}
+		recordPodCreated(pool)
 		counts.pending++
 		counts.total++
 	}
@@ -290,6 +293,7 @@ func (r *SandboxWarmPoolReconciler) expireIdlePods(ctx context.Context, pool *sa
 		if err := r.Delete(ctx, pod); client.IgnoreNotFound(err) != nil {
 			return expired, err
 		}
+		recordPodExpired(pool)
 		expired = true
 		idleRemaining--
 		counts.idle--
@@ -388,4 +392,23 @@ func isPodDegraded(pod *corev1.Pod) bool {
 		}
 	}
 	return false
+}
+
+func recordWarmupIfAvailable(pool *sandboxv1alpha1.SandboxWarmPool, pod *corev1.Pod) {
+	if pod.Annotations == nil {
+		return
+	}
+	createdAtRaw := pod.Annotations[createdAtAnnot]
+	if createdAtRaw == "" {
+		return
+	}
+	createdAt, err := time.Parse(time.RFC3339, createdAtRaw)
+	if err != nil {
+		return
+	}
+	runtimeClass := ""
+	if pod.Spec.RuntimeClassName != nil {
+		runtimeClass = *pod.Spec.RuntimeClassName
+	}
+	observeWarmupDuration(pool.Namespace, pool.Name, runtimeClass, time.Since(createdAt))
 }
