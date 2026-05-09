@@ -1,0 +1,24 @@
+apiVersion: sandbox.koordinator.sh/v1alpha1
+kind: SandboxWarmPool
+metadata:
+  name: gvisor-pool
+  namespace: default
+spec:
+  runtimeClassName: gvisor
+  minIdleCount: 3
+  maxPoolSize: 10
+  recyclePolicy: Delete
+  idleTimeoutSeconds: 300
+  podTemplate:
+    spec:
+      containers:
+      - name: sandbox
+        image: gcr.io/distroless/base:nonroot
+        command: ["sleep", "infinity"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi

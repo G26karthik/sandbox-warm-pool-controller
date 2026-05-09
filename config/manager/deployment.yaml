@@ -19,7 +19,7 @@ spec:
       serviceAccountName: sandbox-warm-pool-controller
       containers:
       - name: controller
-        image: ghcr.io/G26karthik/sandbox-warm-pool-controller:latest
+        image: ghcr.io/g26karthik/sandbox-warm-pool-controller:latest
         args:
         - --metrics-bind-address=:8080
         - --assignment-server-addr=:8081

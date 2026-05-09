@@ -1,0 +1,24 @@
+apiVersion: sandbox.koordinator.sh/v1alpha1
+kind: SandboxWarmPool
+metadata:
+  name: kata-pool
+  namespace: default
+spec:
+  runtimeClassName: kata-qemu
+  minIdleCount: 2
+  maxPoolSize: 8
+  recyclePolicy: Reuse
+  idleTimeoutSeconds: 600
+  podTemplate:
+    spec:
+      containers:
+      - name: sandbox
+        image: gcr.io/distroless/base:nonroot
+        command: ["sleep", "infinity"]
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: 1
+            memory: 512Mi
